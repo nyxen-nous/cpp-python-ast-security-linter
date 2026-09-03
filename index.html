@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SentinelLint — Local Code Security</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div><div class="brand-name">SentinelLint</div><div class="brand-sub">Local code security</div></div>
+    </div>
+    <div class="privacy-pill"><span class="dot"></span> PRIVATE · LOCAL ONLY</div>
+  </header>
+
+  <main class="container">
+    <section id="welcome" class="hero panel">
+      <div>
+        <p class="eyebrow">AST + structural analysis</p>
+        <h1>Scan code without sending it away.</h1>
+        <p class="hero-copy">A focused local dashboard for SentinelLint. Scan Python and C++ projects, inspect evidence, understand findings, and verify fixes — all on this machine.</p>
+      </div>
+      <div class="hero-badges">
+        <span>Python</span><span>C++</span><span>CWE</span><span>42 rules</span><span>No execution</span>
+      </div>
+    </section>
+
+    <section class="workspace panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="project">Scan project</button>
+        <button class="tab" data-tab="paste">Paste code</button>
+      </div>
+
+      <div id="tab-project" class="tab-pane active">
+        <div id="dropzone" class="dropzone">
+          <div class="drop-icon">↑</div>
+          <h2>Drop files or a project here</h2>
+          <p>Python / C++ files, or a ZIP/project selection.</p>
+          <div class="drop-actions">
+            <button id="chooseFiles" class="btn primary">Choose files</button>
+            <button id="chooseFolder" class="btn secondary">Choose folder</button>
+            <input id="fileInput" type="file" hidden multiple accept=".py,.pyw,.pyi,.cpp,.cc,.cxx,.c++,.c,.h,.hpp,.hh,.hxx,.zip" />
+            <input id="folderInput" type="file" hidden webkitdirectory directory multiple />
+          </div>
+          <div id="selection" class="selection muted">Nothing selected yet.</div>
+        </div>
+        <button id="scanProject" class="btn scan-btn" disabled>Scan project</button>
+      </div>
+
+      <div id="tab-paste" class="tab-pane">
+        <div class="paste-grid">
+          <div>
+            <label>Language</label>
+            <select id="pasteLang"><option value="python">Python</option><option value="cpp">C++</option></select>
+          </div>
+          <div>
+            <label>Filename</label>
+            <input id="pasteFilename" value="snippet.py" />
+          </div>
+        </div>
+        <label>Code</label>
+        <textarea id="codeInput" spellcheck="false" placeholder="Paste a Python or C++ snippet here…"></textarea>
+        <button id="scanPaste" class="btn scan-btn">Analyze snippet</button>
+      </div>
+    </section>
+
+    <section id="loading" class="panel hidden loading-panel">
+      <div class="spinner"></div><div><strong>Analyzing locally…</strong><p>SentinelLint is reading source and applying its rules. Nothing is uploaded to a remote server.</p></div>
+    </section>
+
+    <section id="results" class="hidden">
+      <div class="results-head">
+        <div><p class="eyebrow">Scan results</p><h2 id="scanTitle">Project scan</h2><p id="scanMeta" class="muted"></p></div>
+        <button id="newScan" class="btn secondary">New scan</button>
+      </div>
+
+      <div id="statusBanner"></div>
+
+      <div class="stats">
+        <div class="stat"><span>Total</span><strong id="totalCount">0</strong></div>
+        <div class="stat danger"><span>Critical</span><strong id="criticalCount">0</strong></div>
+        <div class="stat danger"><span>High</span><strong id="highCount">0</strong></div>
+        <div class="stat warn"><span>Medium</span><strong id="mediumCount">0</strong></div>
+        <div class="stat quiet"><span>Low</span><strong id="lowCount">0</strong></div>
+      </div>
+
+      <div class="content-grid">
+        <div class="findings-panel panel">
+          <div class="panel-title"><strong>Findings</strong><span id="shownCount" class="muted"></span></div>
+          <div class="filters">
+            <select id="severityFilter"><option value="ALL">All severities</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select>
+            <select id="languageFilter"><option value="ALL">All languages</option><option value="python">Python</option><option value="cpp">C++</option></select>
+            <select id="categoryFilter"><option value="ALL">All categories</option><option value="security">Security</option><option value="quality">Quality</option><option value="style">Style</option></select>
+            <input id="searchFilter" placeholder="Search rule or file…" />
+          </div>
+          <div id="findingList" class="finding-list"></div>
+        </div>
+
+        <aside class="detail panel">
+          <div id="emptyDetail" class="empty-detail"><div class="empty-icon">⌁</div><h3>Select a finding</h3><p>Inspect the source location, evidence path, explanation and remediation.</p></div>
+          <div id="findingDetail" class="hidden">
+            <div class="detail-top"><div><span id="detailSeverity" class="severity-badge"></span><span id="detailRule" class="rule-id"></span></div><span id="detailCwe" class="chip"></span></div>
+            <h3 id="detailMessage"></h3>
+            <div class="detail-meta"><span id="detailLocation"></span><span id="detailConfidence"></span></div>
+            <section><div class="section-label">CODE</div><pre id="codeBlock" class="code-block"></pre></section>
+            <section><div class="section-label">WHY IT MATTERS</div><p id="detailWhy"></p></section>
+            <section id="evidenceSection"><div class="section-label">EVIDENCE PATH</div><div id="evidencePath" class="evidence"></div></section>
+            <section><div class="section-label">REMEDIATION</div><p id="detailFix"></p></section>
+            <button id="applyFix" class="btn primary full hidden">Apply verified fix &amp; rescan</button>
+            <div id="fixNote" class="fix-note hidden"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>SentinelLint</span><span>Local-first · Source is never executed</span></footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>
